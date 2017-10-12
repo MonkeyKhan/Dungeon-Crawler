@@ -14,6 +14,8 @@ public class PathFinderUtil {
 	public Stack<Vector2f> findPath(Vector2f start, Vector2f dest, World world){
 		Stack<Vector2f> path = new Stack<Vector2f>();
 		
+		Node origin = new Node(start, 0, 0);
+		
 		return path;
 	}
 	
