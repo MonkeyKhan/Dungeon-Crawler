@@ -33,6 +33,7 @@ public class State {
 	
 	//equals-Method that does trivial checking for null and class-equality. Specific checking for equality is delegated to abstract class equalsSpecific()
 	//that may be implemented by subclasses. equals() is set to final so that the trivial checks are always executed by subclasses.
+	//TODO: Implement hashCode!!!
 	@Override	
 	public final boolean equals(Object o) {
 		if (o == this) {
