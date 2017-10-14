@@ -35,6 +35,7 @@ public class PathFinderUtil {
 			for(Node neighbor: getNeighbors(current, dest, world)) {
 				//TODO: Check if neighbor already exists in open and if so, update its cost if neihgbor's cost is lower
 				//Test pc1
+				//Test laptop2
 			}
 			
 			
