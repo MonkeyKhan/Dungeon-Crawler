@@ -5,6 +5,8 @@ import java.util.Stack;
 import java.util.PriorityQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
+
+import dungeonCrawler.DataStructures.FlexPQueue;
 import dungeonCrawler.GameComponents.World;
 
 public class PathFinderUtil {
@@ -19,12 +21,14 @@ public class PathFinderUtil {
 		float squaredDist = (dest.x - start.x)*(dest.x - start.x) + (dest.y - start.y)*(dest.y - start.y);
 		
 		//Create the priorityQueue for open nodes to consider. PriorityQueue works on an array and needs an initial capacity
-		PriorityQueue<Node> open = new PriorityQueue<Node>((int)Math.ceil(squaredDist));
+		FlexPQueue<Node> open = new FlexPQueue<Node>((int)Math.ceil(squaredDist));
 		//Create a HashMap for closed nodes for fast memberOf lookups
 		HashMap<Vector2f, Node> closed = new HashMap<Vector2f, Node>((int)Math.ceil(squaredDist));
 		
 		//Node current holds the node currently evaluated
 		Node current;
+		Node origin = new Node(null, start, 0, 0);
+		open.update(origin);
 		//Search until the current node represents the destination
 		while(!open.peek().getPosition().equals(dest)) {
 			
@@ -33,15 +37,17 @@ public class PathFinderUtil {
 			closed.put(current.getPosition(), current);
 			//iterate through all neighbors	
 			for(Node neighbor: getNeighbors(current, dest, world)) {
-				//TODO: Check if neighbor already exists in open and if so, update its cost if neihgbor's cost is lower
-				//Test pc1
-				//Test laptop2
+				if(!closed.containsValue(neighbor.getPosition())) {
+					//If the neighbor hasn't been processed yet, update the current list with it.
+					//This will either add the neighboring node to the PQueue (if it's not in the queue yet), 
+					//or update the existing node (if this one has a higher priority, i.e. lower cost)
+					open.update(neighbor);
+				}
 			}
-			
-			
+			closed.put(current.getPosition(),current);			
 		}
-		Node origin = new Node(null, start, 0, 0);
-		open.add(origin);
+		current = open.poll();
+
 		
 		return path;
 	}

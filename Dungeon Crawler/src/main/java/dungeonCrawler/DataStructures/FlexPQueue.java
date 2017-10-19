@@ -78,7 +78,6 @@ public class FlexPQueue<T extends Comparable<? super T>>
             if(objIndex == -1){
                 //The item is not yet in queue, add normally
                 add(o);
-                System.out.println("Adding "+o.toString());
             }else{
                 //The object is already in the queue. Check whether the new object has a higher priority
                 if(o.compareTo((T)elements[objIndex])>0){
@@ -86,9 +85,6 @@ public class FlexPQueue<T extends Comparable<? super T>>
                     elements[objIndex] = o;
                     //New object might violate heap condition. It has a higher priority than the old object, so its children are definitely smaller than itself -> it might need to move up, but never down
                     heapifyUpwards(objIndex);
-                    System.out.println("Updating "+o.toString());
-                }else{
-                    System.out.println(o.toString()+" has lower priority.");
                 }
             }
         }
