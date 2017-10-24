@@ -3,6 +3,8 @@ package dungeonCrawler.DataStructures;
 
 import java.util.Arrays;
 
+import dungeonCrawler.Debug;
+
 public class FlexPQueue<T extends Comparable<? super T>>
 {
     private int capacity;
@@ -10,13 +12,16 @@ public class FlexPQueue<T extends Comparable<? super T>>
     private Object[] elements;
     
     public FlexPQueue(int initialCapacity){
-        this.capacity = initialCapacity;
-        if(this.capacity >= 0){
-            elements = new Object[this.capacity+1];
-        }else{
-            throw new RuntimeException();
-        }
+    	if(initialCapacity >= 10) {
+            this.capacity = initialCapacity;
+    	}else {
+    		this.capacity = 10;
+    	}
+    	elements = new Object[this.capacity];
         size = 0;
+        if(Debug.p) {
+        	System.out.println("Initializing FlexPQueue, capacity: "+this.capacity);
+        }
     }
     
     public FlexPQueue(){
@@ -68,16 +73,17 @@ public class FlexPQueue<T extends Comparable<? super T>>
     }
 
     
-    public void update(T o){
+    public boolean update(T o){
         /**Tries to add an object to the priorityQueue. If the item is not yet in the queue, this calls add().
          * If the object is in the queue already, it updates the priority of the object ONLY IF the new object's priority is higher than the existing one's.
-         * If the item to add is known to not be inside the queue yet, add() is always faster.
+         * Returns true if object is added or if the priority is updated, returns false if nothing is done
          */
         if(o != null){
             int objIndex = find(o);
             if(objIndex == -1){
                 //The item is not yet in queue, add normally
                 add(o);
+                return true;
             }else{
                 //The object is already in the queue. Check whether the new object has a higher priority
                 if(o.compareTo((T)elements[objIndex])>0){
@@ -85,8 +91,13 @@ public class FlexPQueue<T extends Comparable<? super T>>
                     elements[objIndex] = o;
                     //New object might violate heap condition. It has a higher priority than the old object, so its children are definitely smaller than itself -> it might need to move up, but never down
                     heapifyUpwards(objIndex);
+                    return true;
+                }else {
+                	return false;
                 }
             }
+        }else {
+        	throw new RuntimeException();
         }
     }
     
@@ -145,6 +156,9 @@ public class FlexPQueue<T extends Comparable<? super T>>
             //This can be avoided by choosing a correct initialCapacit
             capacity *= 2;
             elements = Arrays.copyOf(elements, capacity +1);
+            if(Debug.p) {
+            	System.out.println("FlexPQueue updated capacity to "+this.capacity);
+            }
         }
         size++;
         elements[size] = element;

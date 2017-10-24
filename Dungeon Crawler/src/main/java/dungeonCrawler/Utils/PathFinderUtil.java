@@ -1,11 +1,14 @@
 package dungeonCrawler.Utils;
 
 import org.joml.Vector2f;
+import org.joml.Vector3f;
+
 import java.util.Stack;
 import java.util.PriorityQueue;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import dungeonCrawler.Debug;
 import dungeonCrawler.DataStructures.FlexPQueue;
 import dungeonCrawler.GameComponents.World;
 
@@ -15,8 +18,11 @@ public class PathFinderUtil {
 		
 	}
 	
-	public Stack<Vector2f> findPath(Vector2f start, Vector2f dest, World world){
+	public static Stack<Vector2f> findPath(Vector2f start, Vector2f dest, World world){
 		Stack<Vector2f> path = new Stack<Vector2f>();
+		
+		Vector2f startTrunc = new Vector2f((float)Math.floor(start.x), (float)Math.floor(start.y));
+		Vector2f destTrunc = new Vector2f((float)Math.floor(dest.x), (float)Math.floor(dest.y));
 		//Need an initial capacity for the priorityQueue. Keeping it simple for now, and using the squared distance from start to dest
 		float squaredDist = (dest.x - start.x)*(dest.x - start.x) + (dest.y - start.y)*(dest.y - start.y);
 		
@@ -27,32 +33,57 @@ public class PathFinderUtil {
 		
 		//Node current holds the node currently evaluated
 		Node current;
-		Node origin = new Node(null, start, 0, 0);
+		Node origin = new Node(null, startTrunc, 0, 0);
 		open.update(origin);
 		//Search until the current node represents the destination
-		while(!open.peek().getPosition().equals(dest)) {
+		if(Debug.p) {
+			System.out.println(String.format("Searching for a path from %s to %s...", start.toString(), dest.toString()));
+		}
+
+		while(!open.peek().getPosition().equals(destTrunc)) {
 			
 			//Move the lowest cost node from open to closed
 			current = open.poll();
 			closed.put(current.getPosition(), current);
 			//iterate through all neighbors	
-			for(Node neighbor: getNeighbors(current, dest, world)) {
+			for(Node neighbor: getNeighbors(current, destTrunc, world)) {
 				if(!closed.containsValue(neighbor.getPosition())) {
 					//If the neighbor hasn't been processed yet, update the current list with it.
 					//This will either add the neighboring node to the PQueue (if it's not in the queue yet), 
 					//or update the existing node (if this one has a higher priority, i.e. lower cost)
-					open.update(neighbor);
+					if( open.update(neighbor) && Debug.p) {
+						System.out.println(String.format("Adding %s to open list", neighbor.toString()));
+					}
 				}
 			}
 			closed.put(current.getPosition(),current);			
 		}
+		System.out.println("Pathfinder found destination");
+
+		//instead of pushing destination node (which contains the truncated destination pos), push the real destination position onto the stack
+		path.push(dest);
+		//open.poll() MUST return the destination node, since that was the break condition for previous loop
 		current = open.poll();
+		while(!current.equals(origin)) {//Check here to make sure a parent exists at all
+			current = current.getParent();
+			if(!current.equals(origin)) {//Check here to not add origin
+				Vector2f nextPos = new Vector2f(current.getPosition().x + 0.5f, current.getPosition().y + 0.5f);
+				path.push(nextPos);
+			}
+		}
 
 		
 		return path;
 	}
 	
-	private ArrayList<Node> getNeighbors(Node node, Vector2f dest, World world) {
+	public static Stack<Vector2f> findPath(Vector3f start, Vector3f dest, World world){
+		return findPath(
+				new Vector2f(start.x, start.y),
+				new Vector2f(dest.x, dest.y),
+				world);
+	}
+	
+	private static ArrayList<Node> getNeighbors(Node node, Vector2f dest, World world) {
 		//Returns an ArrayList of all neighboring nodes of a node, that are valid for pathfinding, i.e. passable
 		ArrayList<Node> neighbors = new ArrayList<Node>(8);
 		
@@ -76,12 +107,12 @@ public class PathFinderUtil {
 		return neighbors;
 	}
 	
-	private float calcHeuristics(Vector2f start, Vector2f dest) {
+	private static float calcHeuristics(Vector2f start, Vector2f dest) {
 		//The heuristic is the estimated moveCost from start to dest. Using the distance here.
 		return Math.abs(dest.distance(start));
 	}
 	
-	private class Node implements Comparable<Node>{
+	private static class Node implements Comparable<Node>{
 
 		//A node represents a walkable position along a path. To find the shortest path from a to b, each node has a
 		//cost associated to it. The cost is split up into a known cost (g) that represents the real cost to move from a
@@ -104,13 +135,24 @@ public class PathFinderUtil {
 		
 		@Override
 		public int compareTo(Node otherNode) {
-			//Nodes are compared based on their total cost
-			return Float.compare(this.getCost(), otherNode.getCost());
+			/**
+			 * Nodes are compared based on their moveCost
+			 * A node of LOWER cost has a HIGHER priority:
+			 * if this's cost is lower, compareTo returns a POSITIVE value
+			 * if otherNode's cost is is lower, compareTo returns a NEGATIVE value
+			 * if both nodes have an equal cost, compareTo returns 0
+			 * IMPORTANT: equal in terms of compareTo does NOT imply equal in terms of equals()!
+			 */
+			return -1 * Float.compare(this.getCost(), otherNode.getCost());
 		}
 		
 		@Override
 		public boolean equals(Object o) {
-			//Nodes are equal if their position matches
+			/**
+			 * Compare this to the argument Object o and return true if this and o are equal or return false if not
+			 * Testing for equality is based on the nodes' position
+			 * IMPORTANT: equal in terms of equals() does NOT imply equal in terms of compareTo()!
+			 **/
 			if (o == this) {
 				return true;
 			}
@@ -123,6 +165,11 @@ public class PathFinderUtil {
 		@Override
 		public int hashCode() {
 			return 31 * pos.hashCode() + 17;
+		}
+		
+		@Override
+		public String toString(){
+			return String.format("Node %s, %s (cost: %s, heuristic: %s)", 1*pos.x, 1*pos.y, this.g, this.h);
 		}
 		
 		public float getCost() {
