@@ -17,7 +17,7 @@ public class MoveCommand implements Command {
 	private Stack<Vector2f> path;
 	private Vector2f dest = null;
 	private boolean executed = false;
-	private final float PATH_RADIUS = 0.2f;
+	private final float PATH_RADIUS = 0.05f;
 	
 	public MoveCommand(Stack<Vector2f> path) {
 		this.path = path;

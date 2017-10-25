@@ -75,7 +75,12 @@ public class Area extends GameItemSystem {
 	}
 	
 	public boolean isPassable(Vector2f pos) {
-		return ((Tile)tiles.get(pos)).isPassable();
+		Tile tile = (Tile)tiles.get(pos);
+		if (tile == null) {
+			return false;
+		}else {
+			return tile.isPassable();
+		}
 	}
 	
 	public void recalcAABB() {

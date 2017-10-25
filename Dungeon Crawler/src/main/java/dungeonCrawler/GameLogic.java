@@ -19,6 +19,7 @@ import dungeonCrawler.Rendering.Window;
 import dungeonCrawler.UI.Ray;
 import dungeonCrawler.UI.RayIntersection;
 import dungeonCrawler.Utils.MeshUtil;
+import dungeonCrawler.Utils.PathFinderUtil;
 import dungeonCrawler.Utils.TransformUtil;
 import dungeonCrawler.Utils.WorldGenUtil;
 
@@ -59,8 +60,10 @@ public class GameLogic {
 				ri.getItem().toString(), 
 				ri.getPosition()));
 				if(ri.getItem() instanceof Terrain) {
+					
 					Stack<Vector2f> path = new Stack<Vector2f>();
-					path.add(new Vector2f(ri.getPosition().x, ri.getPosition().y));
+					//path.add(new Vector2f(ri.getPosition().x, ri.getPosition().y));
+					path = PathFinderUtil.findPath(player.getPosition(), ri.getPosition(), world);
 					player.issueCommand(new MoveCommand(path));
 					break;
 				}
