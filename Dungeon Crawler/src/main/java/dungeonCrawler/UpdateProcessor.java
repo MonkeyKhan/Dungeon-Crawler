@@ -13,9 +13,10 @@ public class UpdateProcessor {
 	}
 	
 	public void process(Update u) {
+		//TODO: Collision detection happens here!
 		//Just pass the new State to its owner for now, in the future this will see a lot more checking
 		if(Debug.p) {
-			//System.out.println(String.format("%s: Passing new %s to %s", this.toString(), u.getNewState(), u.getOwner()));
+			System.out.println(String.format("%s: Passing new %s to %s", this.toString(), u.getNewState(), u.getOwner()));
 		}
 		u.getOwner().setState(u.getNewState());
 	}
