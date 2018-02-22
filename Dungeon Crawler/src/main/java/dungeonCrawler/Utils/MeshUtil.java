@@ -99,27 +99,80 @@ public final class MeshUtil {
 		
 		return mesh;
 	}
-	public static Mesh makeTile(float r, float g, float b) {
+	public static Mesh makeTile(int type, float r, float g, float b) {
 		
-		float[] positions = new float[]{
-        		0f, 0f, 0f,
-        		1f, 0f, 0f,
-        		0f, 1f, 0f,
-        		1f, 1f, 0f
-        };
-        
-        float[] colors = new float[]{
-        		r, g, b,
-        		r, g, b,
-        		r, g, b,
-        		r, g, b
-        };
-        
-        int[] indices = new int[]{
-        		0, 1, 2,
-        		3, 2, 1
-        		
-        };
+		float[] positions, colors;
+		int[] indices;
+		
+		if (type == 0) {
+			 positions = new float[]{
+	        		0f, 0f, 0f,
+	        		1f, 0f, 0f,
+	        		0f, 1f, 0f,
+	        		1f, 1f, 0f
+	        };
+	        
+	         colors = new float[]{
+	        		r, g, b,
+	        		r, g, b,
+	        		r, g, b,
+	        		r, g, b
+	        };
+	        
+	        indices = new int[]{
+	        		0, 1, 2,
+	        		3, 2, 1
+	        		
+	        };
+		}else {
+	         colors = new float[]{
+		        		r, g, b,
+		        		r, g, b,
+		        		r, g, b,
+		      };
+		        
+		      indices = new int[]{
+		        		0, 1, 2,
+		      };
+		      switch (type){
+		      
+		      case 1: 
+		    	  positions = new float[]{
+			        		1f, 0f, 0f,
+			        		1f, 1f, 0f,
+			        		0f, 1f, 0f
+		    	  };
+		    	  break;
+		      case 2:
+		    	  positions = new float[]{
+			        		0f, 0f, 0f,
+			        		1f, 0f, 0f,
+			        		1f, 1f, 0f
+		    	  };
+		    	  break;
+		      case 3:
+		    	  positions = new float[]{
+			        		0f, 0f, 0f,
+			        		1f, 0f, 0f,
+			        		0f, 1f, 0f
+		    	  };
+		    	  break;
+		      case 4:
+		    	  positions = new float[]{
+			        		0f, 0f, 0f,
+			        		1f, 1f, 0f,
+			        		0f, 1f, 0f
+		    	  };
+		    	  break;
+		      default: 
+		    	  positions = new float[]{
+			        		0f, 0f, 0f,
+			        		0f, 0f, 0f,
+			        		0f, 0f, 0f
+		    	  };
+		      }
+		        	
+		}
         
         return new Mesh(positions, colors, indices, false);
 	}

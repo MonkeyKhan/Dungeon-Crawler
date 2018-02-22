@@ -120,7 +120,7 @@ public class GameLogic {
 			issueRandomMoveCommand();
 		}
 		if (window.isKeyPressed(GLFW_KEY_I)) {
-			WorldGenUtil.createRandomTile(world);
+			//WorldGenUtil.createRandomTile(world);
 		}
 		
 	}

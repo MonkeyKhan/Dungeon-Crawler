@@ -58,18 +58,24 @@ public class PathFinderUtil {
 			}
 			closed.put(current.getPosition(),current);			
 		}
-		System.out.println("Pathfinder found destination");
+
 
 		//instead of pushing destination node (which contains the truncated destination pos), push the real destination position onto the stack
 		path.push(dest);
 		//open.poll() MUST return the destination node, since that was the break condition for previous loop
 		current = open.poll();
+		String pathStr = "";
 		while(!current.equals(origin)) {//Check here to make sure a parent exists at all
 			current = current.getParent();
 			if(!current.equals(origin)) {//Check here to not add origin
 				Vector2f nextPos = new Vector2f(current.getPosition().x + 0.5f, current.getPosition().y + 0.5f);
 				path.push(nextPos);
+				pathStr = nextPos.toString() + ", " + pathStr;
 			}
+		}
+		
+		if (Debug.p) {
+			System.out.println("Pathfinder found destination via " + pathStr);
 		}
 
 		
@@ -87,20 +93,24 @@ public class PathFinderUtil {
 		//Returns an ArrayList of all neighboring nodes of a node, that are valid for pathfinding, i.e. passable
 		ArrayList<Node> neighbors = new ArrayList<Node>(8);
 		
-		//Iterate through all positions that neighbor the given node, including diagonally
-		for(int i=-1; i<2; i++) {
-			for(int j=-1; j<2; j++) {
-				Vector2f neighborPos = new Vector2f(node.getPosition());
-				neighborPos.add(i, j);
-				//If the neighbor is passable and is not the node itself, add them
-				if(!(i==0 && j== 0) & world.isPassable(neighborPos)) {
-					
-					//Calculate moveCost of neighboring nodes by adding the moveCost relative to the parent node
-					//to the parent node's moveCost
-					float moveCost = node.getMoveCost() + new Vector2f(i, j).length();
-					//Add the neighbor node to ArrayList with the given node as its parent and set moveCost and heuristic
-					neighbors.add(new Node(node, neighborPos, moveCost, calcHeuristics(neighborPos, dest)));
-				}
+		//Iterate through all positions that neighbor the given node, not including diagonally
+		Vector2f[] neighboringPositions = new Vector2f[4];
+		neighboringPositions[0] = new Vector2f(-1,0);	
+		neighboringPositions[1] = new Vector2f(1,0);	
+		neighboringPositions[2] = new Vector2f(0,-1);	
+		neighboringPositions[3] = new Vector2f(0,1);
+		for(Vector2f n: neighboringPositions) {
+			
+			Vector2f neighborPos = new Vector2f(node.getPosition());
+			neighborPos.add(n);
+			//If the neighbor is passable and is not the node itself, add them
+			if(world.isPassable(neighborPos) || neighborPos.equals(dest)) {
+				
+				//Calculate moveCost of neighboring nodes by adding the moveCost relative to the parent node
+				//to the parent node's moveCost
+				float moveCost = node.getMoveCost() + 1;
+				//Add the neighbor node to ArrayList with the given node as its parent and set moveCost and heuristic
+				neighbors.add(new Node(node, neighborPos, moveCost, calcHeuristics(neighborPos, dest)));
 			}
 		}
 		
