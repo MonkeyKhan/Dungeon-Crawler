@@ -26,6 +26,7 @@ public abstract class GameItem extends GameComponent {
 	@Override
 	public void render() {
 		mesh.render(this.getPosition());
+		command.render();
 	}
 
 	@Override

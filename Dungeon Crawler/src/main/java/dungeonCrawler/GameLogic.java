@@ -9,6 +9,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 import org.joml.Vector4f;
 
+import dungeonCrawler.Commands.Path;
 import dungeonCrawler.Commands.MoveCommand;
 import dungeonCrawler.GameComponents.Player;
 import dungeonCrawler.GameComponents.Terrain;
@@ -61,7 +62,7 @@ public class GameLogic {
 				ri.getPosition()));
 				if(ri.getItem() instanceof Terrain) {
 					
-					Stack<Vector2f> path = new Stack<Vector2f>();
+					Path path = new Path();
 					//path.add(new Vector2f(ri.getPosition().x, ri.getPosition().y));
 					path = PathFinderUtil.findPath(player.getPosition(), ri.getPosition(), world);
 					player.issueCommand(new MoveCommand(path));
@@ -117,7 +118,7 @@ public class GameLogic {
 		}
 		if (window.isKeyPressed(GLFW_KEY_U)) {
 			
-			issueRandomMoveCommand();
+			//issueRandomMoveCommand();
 		}
 		if (window.isKeyPressed(GLFW_KEY_I)) {
 			//WorldGenUtil.createRandomTile(world);
@@ -126,6 +127,7 @@ public class GameLogic {
 	}
 	
 	//TEMPORARY
+	/*
 	private void issueRandomMoveCommand() {
 		Stack<Vector2f> path = new Stack<Vector2f>();
 		
@@ -135,7 +137,7 @@ public class GameLogic {
 					(float)(Math.random()*5)));
 		}
 		player.issueCommand(new MoveCommand(path));
-	}
+	}*/
 	
 	public void update(float interval) {
 		for (Update u: world.update(interval)) {

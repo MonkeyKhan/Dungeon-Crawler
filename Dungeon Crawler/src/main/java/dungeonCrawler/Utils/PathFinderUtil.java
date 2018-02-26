@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import dungeonCrawler.Debug;
+import dungeonCrawler.Commands.Path;
 import dungeonCrawler.DataStructures.FlexPQueue;
 import dungeonCrawler.GameComponents.World;
 
@@ -18,7 +19,7 @@ public class PathFinderUtil {
 		
 	}
 	
-	public static Stack<Vector2f> findPath(Vector2f start, Vector2f dest, World world){
+	public static Path findPath(Vector2f start, Vector2f dest, World world){
 		Stack<Vector2f> path = new Stack<Vector2f>();
 		
 		Vector2f startTrunc = new Vector2f((float)Math.floor(start.x), (float)Math.floor(start.y));
@@ -78,15 +79,19 @@ public class PathFinderUtil {
 			System.out.println("Pathfinder found destination via " + pathStr);
 		}
 
-		
-		return path;
+		path.push(start);
+		return new Path(path);
 	}
 	
-	public static Stack<Vector2f> findPath(Vector3f start, Vector3f dest, World world){
+	public static Path findPath(Vector3f start, Vector3f dest, World world){
 		return findPath(
 				new Vector2f(start.x, start.y),
 				new Vector2f(dest.x, dest.y),
 				world);
+	}
+	
+	private static ArrayList<Node> smoothPath(Stack<Vector2f> path){
+		return null;
 	}
 	
 	private static ArrayList<Node> getNeighbors(Node node, Vector2f dest, World world) {

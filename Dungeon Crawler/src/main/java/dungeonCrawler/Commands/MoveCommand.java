@@ -14,12 +14,12 @@ import dungeonCrawler.States.State;
 
 public class MoveCommand implements Command {
 
-	private Stack<Vector2f> path;
+	private Path path;
 	private Vector2f dest = null;
 	private boolean executed = false;
 	private final float PATH_RADIUS = 0.05f;
 	
-	public MoveCommand(Stack<Vector2f> path) {
+	public MoveCommand(Path path) {
 		this.path = path;
 		this.init();
 	}
@@ -33,7 +33,7 @@ public class MoveCommand implements Command {
 		
 		//Check whether distance to destination is within a constant threshold
 		if(dist < PATH_RADIUS) {
-			if(path.size() > 0) {
+			if(!path.empty()) {
 				//If within threshold and more destinations are available, pop next destination off stack
 				dest = path.pop();
 				if(Debug.p) {
@@ -62,6 +62,11 @@ public class MoveCommand implements Command {
 	@Override
 	public String toString() {
 		return String.format("%s (%s positions)", this.getClass().getSimpleName(), path.size());
+	}
+	
+	@Override
+	public void render() {
+		path.render();
 	}
 	
 	private void init() {

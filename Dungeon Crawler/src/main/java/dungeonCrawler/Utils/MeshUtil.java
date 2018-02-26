@@ -1,5 +1,8 @@
 package dungeonCrawler.Utils;
 
+import java.util.Stack;
+
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import dungeonCrawler.GameComponents.Mesh;
@@ -344,6 +347,45 @@ public final class MeshUtil {
         };
         
         return new Mesh(positions, colors, indices, true);
+	}
+	
+	public static Mesh makePath(Stack<Vector2f> path) {
+		
+		Stack<Vector2f> porig = path;
+		Stack<Vector2f> p =  (Stack<Vector2f>) path.clone();
+		
+		float[] positions = new float[3*p.size()];
+		float[] colors = new float[3*p.size()];
+		int[] indices;
+		if(p.size()<=1) {
+			indices = new int[2];
+		}else {
+			indices = new int[2*(p.size()-1)];
+		}
+		
+		
+		int maxInd = p.size();
+		
+		for(int i=0; i<maxInd ;i++) {
+			Vector2f current = p.pop();
+			
+			positions[3*i] = current.x;
+			positions[3*i +1] = current.y;
+			positions[3*i +2] = 0.05f;
+			
+			colors[3*i] = 1f;
+			colors[3*i +1] = 1f;
+			colors[3*i +2] = 1f;
+			
+			if (i<(maxInd-1)) {
+				indices[2*i] = i;
+				indices[2*i +1] = i+1;
+			}
+		}
+		
+		
+		return new Mesh(positions, colors, indices, true);
+		
 	}
 }
 

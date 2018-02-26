@@ -20,6 +20,11 @@ public class NullCommand implements Command {
 		return this.getClass().getSimpleName();
 	}
 	
+	@Override
+	public void render() {
+		//Nothing to render
+	}
+	
 	
 
 }
