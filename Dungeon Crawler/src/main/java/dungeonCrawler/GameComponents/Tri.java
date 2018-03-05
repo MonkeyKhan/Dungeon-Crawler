@@ -9,6 +9,8 @@ public class Tri{
 	private final Vector3f v2;
 	private final Plane p;
 	
+	
+	//TODO: Make tris fit in with polygonicBounds!!
 	public Tri (Vector3f v0, Vector3f v1, Vector3f v2) {
 		this.v0 = new Vector3f(v0);
 		this.v1 = new Vector3f(v1);

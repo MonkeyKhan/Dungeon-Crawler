@@ -8,6 +8,7 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import dungeonCrawler.Update;
+import dungeonCrawler.GameComponents.CollisionBounds.AABB;
 import dungeonCrawler.GameComponents.Structures.AreaIterator;
 import dungeonCrawler.GameComponents.Structures.GameComponentMatrix;
 import dungeonCrawler.UI.Ray;

@@ -6,31 +6,43 @@ import dungeonCrawler.Utils.MeshUtil;
 
 public class Terrain extends Tile {
 
-	private final int type;
+	private TerrainType type;
 	/**
 	 * types:
 	 * 0) - Full tile
 	 * __________
-	 *|2   /\   1|
+	 *|3   /\   4|
 	 *|  /    \  |
 	 *|/        \|
 	 *|\        /|
 	 *|  \    /  |
-	 *|3___\/___4|
+	 *|2___\/___1|
+	 *
+	 *  o---> y
+	 *  |
+	 *  v
+	 *  x
 	 *
 	 */
 	
-	public Terrain (Vector3f position, int type) {
-		super(position, MeshUtil.makeTile(type, (float)Math.random(), (float)Math.random(), (float)Math.random()));
+	public Terrain (Vector3f position, TerrainType type) {
+		super(position, MeshUtil.makeTile(type, (float)Math.random(), (float)Math.random(), (float)Math.random()), type.getCollisionBounds());
 		this.type = type;
+		if(this.type == null) {
+			System.err.println("no terrain type!");
+		}
 	}
 	@Override
 	public boolean isPassable() {
-		if(type == 0) {
-			return true;
-		}else {
-			return false;
-		}
+		return type.isPassable();
 	}
-
+	
+	@Override
+	public String toString() {
+		return super.toString();
+	}
+	
+	
+	
+	
 }

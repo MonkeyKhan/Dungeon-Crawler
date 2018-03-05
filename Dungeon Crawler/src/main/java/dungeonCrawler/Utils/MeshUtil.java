@@ -6,6 +6,7 @@ import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import dungeonCrawler.GameComponents.Mesh;
+import dungeonCrawler.GameComponents.TerrainType;
 
 public final class MeshUtil {
 	private MeshUtil() {
@@ -102,11 +103,33 @@ public final class MeshUtil {
 		
 		return mesh;
 	}
-	public static Mesh makeTile(int type, float r, float g, float b) {
+	public static Mesh makeTile(TerrainType type, float r, float g, float b) {
 		
-		float[] positions, colors;
-		int[] indices;
+		//Empty tiles don't contain any vertices and do not have a mesh
+		if(type.getVertices()==null) {
+			return null;
+		}
 		
+		float[] positions = new float[type.getVertices().length*3];
+		float[] colors = new float[type.getVertices().length*3];
+		int[] indices = new int[(type.getVertices().length-2)*3];
+		
+		for (int i=0; i<type.getVertices().length; i++) {
+			positions[3*i] = type.getVertices()[i].x;
+			positions[3*i +1] = type.getVertices()[i].y;
+			positions[3*i +2] = type.getVertices()[i].z;
+			
+			colors[3*i] = r;
+			colors[3*i +1] = g;
+			colors[3*i +2] = b;
+		}		
+		
+		for(int i=0; i<type.getVertices().length-2; i++) {
+			indices[3*i] = 0;
+			indices[3*i +1] = i+1;
+			indices[3*i +2] = i+2;
+		}
+		/*
 		if (type == 0) {
 			 positions = new float[]{
 	        		0f, 0f, 0f,
@@ -175,7 +198,7 @@ public final class MeshUtil {
 		    	  };
 		      }
 		        	
-		}
+		}*/
         
         return new Mesh(positions, colors, indices, false);
 	}
@@ -301,6 +324,52 @@ public final class MeshUtil {
         
         return new Mesh(positions, colors, indices, false);
 	}
+	public static Mesh makePlayer(float radius, float height) {
+		
+		float r = 1;
+		float g = 0;
+		float b = 0;
+		
+		float[] positions = new float[]{
+        		-radius, -radius, 0f,
+        		radius, -radius, 0f,
+        		-radius, radius, 0f,
+        		radius, radius, 0f,
+        		-radius, -radius, height,
+        		radius, -radius, height,
+        		-radius, radius, height,
+        		radius, radius, height,
+        };
+        
+        float[] colors = new float[]{
+        		r, g, b,
+        		r, g, b,
+        		r, g, b,
+        		r, g, b,
+        		r, g, b,
+        		r, g, b,
+        		r, g, b,
+        		r, g, b
+        };
+        
+        int[] indices = new int[]{
+        		0, 1, 2,
+        		1, 3, 2,
+        		0, 6, 4,
+        		0, 2, 6,
+        		2, 3, 6,
+        		3, 7, 6,
+        		7, 1, 5,
+        		7, 3, 1,
+        		5, 1, 0,
+        		0, 4, 5,
+        		4, 6, 7,
+        		7, 5, 4
+        		
+        };
+        
+        return new Mesh(positions, colors, indices, false);
+	}
 	public static Mesh makeLine(Vector3f pos1, Vector3f pos2) {
 		float r = 1f;//(float)Math.random();
 		float g = 1f;//(float)Math.random();
@@ -351,7 +420,6 @@ public final class MeshUtil {
 	
 	public static Mesh makePath(Stack<Vector2f> path) {
 		
-		Stack<Vector2f> porig = path;
 		Stack<Vector2f> p =  (Stack<Vector2f>) path.clone();
 		
 		float[] positions = new float[3*p.size()];

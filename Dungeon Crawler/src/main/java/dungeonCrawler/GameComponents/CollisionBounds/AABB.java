@@ -1,15 +1,16 @@
-package dungeonCrawler.GameComponents;
+package dungeonCrawler.GameComponents.CollisionBounds;
 
 import java.util.ArrayList;
 
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import dungeonCrawler.GameComponents.GameItem;
 import dungeonCrawler.UI.Ray;
 import dungeonCrawler.UI.RayIntersection;
 import dungeonCrawler.Utils.MeshUtil;
 
-public class AABB extends GameItem{
+public class AABB extends GameItem { //implements Collidable{
 	
 	private final Vector3f pMin;
 	private final Vector3f pMax;

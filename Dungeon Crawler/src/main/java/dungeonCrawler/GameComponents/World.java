@@ -73,6 +73,21 @@ public class World extends GameItemSystem {
 		}
 	}
 	
+	public ArrayList<GameItem> getTiles(Vector3f pos){
+		ArrayList<GameItem> tilesOut = new ArrayList<GameItem>(100);
+		
+		Area a = getAreaFromPos(pos);
+		
+		for(GameComponent i: a) {
+			if (i instanceof GameItem) {
+				tilesOut.add((GameItem)i);
+			}
+		}
+		
+		return tilesOut;
+		
+	}
+	
 	private Area getAreaFromPos(Vector2f pos) {
 		Area existingArea = (Area)areas.get(getAreaOrigin(pos));
 		return existingArea;

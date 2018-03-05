@@ -42,7 +42,7 @@ public class GameLogic {
 	public void init(Window window) throws Exception{
         renderer.init(window);
         this.window = window;
-        player =  new Player(new Vector3f(0f, 0f, 0.05f));
+        player =  new Player(new Vector3f(0f, 0f, 0.05f), 0.2f, 0.7f);
         world = new World("Hello World",  player);
         uProcessor = new UpdateProcessor(world);
         WorldGenUtil.gen(world);
@@ -64,7 +64,7 @@ public class GameLogic {
 					
 					Path path = new Path();
 					//path.add(new Vector2f(ri.getPosition().x, ri.getPosition().y));
-					path = PathFinderUtil.findPath(player.getPosition(), ri.getPosition(), world);
+					path = PathFinderUtil.findPath(player.getPosition(), ri.getPosition(), world, player.getWidth()/2);
 					player.issueCommand(new MoveCommand(path));
 					break;
 				}

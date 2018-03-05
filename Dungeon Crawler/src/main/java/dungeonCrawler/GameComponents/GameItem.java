@@ -8,6 +8,7 @@ import dungeonCrawler.Debug;
 import dungeonCrawler.Update;
 import dungeonCrawler.Commands.Command;
 import dungeonCrawler.Commands.NullCommand;
+import dungeonCrawler.GameComponents.CollisionBounds.Collidable;
 import dungeonCrawler.States.State;
 import dungeonCrawler.UI.Ray;
 import dungeonCrawler.UI.RayIntersection;
@@ -16,16 +17,26 @@ public abstract class GameItem extends GameComponent {
 
 	private Mesh mesh;
 	private Command command;
+	private Collidable collisionBounds;
 	
 	public GameItem( Vector3f pos, Mesh mesh) {
 		super(pos);
 		this.mesh = mesh;
 		this.issueCommand(new NullCommand());
+		this.collisionBounds = null;
+	}
+	
+	
+	public GameItem(Vector3f pos, Mesh mesh, Collidable collisionBounds) {
+		this(pos, mesh);
+		this.collisionBounds = collisionBounds;
 	}
 	
 	@Override
 	public void render() {
-		mesh.render(this.getPosition());
+		if(mesh != null) {
+			mesh.render(this.getPosition());
+		}
 		command.render();
 	}
 
@@ -63,8 +74,28 @@ public abstract class GameItem extends GameComponent {
 		return new ArrayList<RayIntersection>();
 	}
 	
+	public boolean checkCollision(GameItem target) {
+		if (this.hasCollisionBounds() && target.hasCollisionBounds()) {
+			return collisionBounds.checkCollision(target.getCollisionBounds(), this.getPosition(), target.getPosition());
+		}else {
+			return false;
+		}
+	}
+	
 	protected Mesh getMesh() {
 		return mesh;
+	}
+	
+	protected Collidable getCollisionBounds() {
+		return collisionBounds;
+	}
+	
+	protected boolean hasCollisionBounds() {
+		if(collisionBounds == null) {
+			return false;
+		}else{
+			return true;
+		}
 	}
 	
 	public void issueCommand(Command command) {
