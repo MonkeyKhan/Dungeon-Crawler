@@ -77,5 +77,13 @@ public class State {
 	public Vector2f getGridPosition() {
 		return new Vector2f(pos.x, pos.y);
 	}
+	
+	public Vector2f getDir() {
+		return new Vector2f(0f, 0f);
+	}
+	
+	public void forcePosition(Vector3f pos) {
+		this.pos = pos;
+	}
 		
 }

@@ -1,5 +1,7 @@
 package dungeonCrawler.Commands;
 
+import org.joml.Vector3f;
+
 import dungeonCrawler.States.State;
 
 public class NullCommand implements Command {
@@ -20,9 +22,15 @@ public class NullCommand implements Command {
 		return this.getClass().getSimpleName();
 	}
 	
+
 	@Override
 	public void render() {
 		//Nothing to render
+	}
+	
+	@Override
+	public void acceptRevision(CollisionEvent rev) {
+		//Do nothing
 	}
 	
 	

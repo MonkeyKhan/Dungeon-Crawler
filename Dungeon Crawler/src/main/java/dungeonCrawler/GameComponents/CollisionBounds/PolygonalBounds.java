@@ -83,23 +83,23 @@ public class PolygonalBounds implements Collidable {
 	}
 	
 	@Override
-	public boolean checkCollision(Collidable target, Vector3f actorPos, Vector3f targetPos) {
+	public Vector3f resolveCollision(Collidable target, Vector3f actorPos, Vector3f targetPos) {
 		return target.visit(this, actorPos, targetPos);
 	}
 	
 	@Override
-	public boolean visit(Collidable actor, Vector3f actorPos, Vector3f targetPos) {
+	public Vector3f visit(Collidable actor, Vector3f actorPos, Vector3f targetPos) {
 		return actor.accept(this, actorPos, targetPos);
 	}
 	
 	@Override
-	public boolean accept(CylindricBounds target, Vector3f actorPos, Vector3f targetPos) {
-		return CollisionUtil.checkCollision(this, target, actorPos, targetPos);
+	public Vector3f accept(CylindricBounds target, Vector3f actorPos, Vector3f targetPos) {
+		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
 	}
 	
 	@Override
-	public boolean accept(PolygonalBounds target, Vector3f actorPos, Vector3f targetPos) {
-		return CollisionUtil.checkCollision(this, target, actorPos, targetPos);
+	public Vector3f accept(PolygonalBounds target, Vector3f actorPos, Vector3f targetPos) {
+		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
 	}
 	
 	public float getWidth() {

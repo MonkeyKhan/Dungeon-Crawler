@@ -2,13 +2,17 @@ package dungeonCrawler.GameComponents;
 
 import java.util.ArrayList;
 
+import org.joml.Vector2f;
 import org.joml.Vector3f;
 
 import dungeonCrawler.Debug;
 import dungeonCrawler.Update;
+import dungeonCrawler.Commands.CollisionEvent;
 import dungeonCrawler.Commands.Command;
+import dungeonCrawler.Commands.CommandRevision;
 import dungeonCrawler.Commands.NullCommand;
 import dungeonCrawler.GameComponents.CollisionBounds.Collidable;
+import dungeonCrawler.States.MovingState;
 import dungeonCrawler.States.State;
 import dungeonCrawler.UI.Ray;
 import dungeonCrawler.UI.RayIntersection;
@@ -76,10 +80,27 @@ public abstract class GameItem extends GameComponent {
 	
 	public boolean checkCollision(GameItem target) {
 		if (this.hasCollisionBounds() && target.hasCollisionBounds()) {
-			return collisionBounds.checkCollision(target.getCollisionBounds(), this.getPosition(), target.getPosition());
+			if (collisionBounds.resolveCollision(target.getCollisionBounds(), this.getPosition(), target.getPosition())!=null) {
+				return true;
+			}else {
+				return false;
+			}
 		}else {
 			return false;
 		}
+	}
+	
+	public CollisionEvent resolveCollision(GameItem target, State updatedTargetState) {
+		if(this.collisionBounds == null) {
+			return null;
+		}
+		Vector3f mtv = collisionBounds.resolveCollision(target.getCollisionBounds(), this.getPosition(), updatedTargetState.getPosition());
+		if(mtv == null) {
+			return null;
+		}
+		Vector2f dir = target.getState().getDir();
+		float t = mtv.dot(new Vector3f(dir.x, dir.y, 0))*(-1f)*mtv.length();
+		return new CollisionEvent(mtv, this, target, t);
 	}
 	
 	protected Mesh getMesh() {
@@ -104,6 +125,10 @@ public abstract class GameItem extends GameComponent {
 			System.out.println(String.format("Issuing new %s to %s", command.toString(), this.toString()));
 		}
 		this.command = command;
+	}
+	
+	public void acceptRevision(CommandRevision rev) {
+		rev.revise(command);
 	}
 	
 	
