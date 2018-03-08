@@ -6,11 +6,16 @@ import org.joml.Vector3f;
 import java.util.Stack;
 import java.util.PriorityQueue;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 
 import dungeonCrawler.Debug;
+import dungeonCrawler.Commands.Path;
 import dungeonCrawler.DataStructures.FlexPQueue;
+import dungeonCrawler.GameComponents.DummyUnit;
+import dungeonCrawler.GameComponents.GameItem;
 import dungeonCrawler.GameComponents.World;
+import dungeonCrawler.GameComponents.CollisionBounds.PolygonalBounds;
 
 public class PathFinderUtil {
 
@@ -18,7 +23,7 @@ public class PathFinderUtil {
 		
 	}
 	
-	public static Stack<Vector2f> findPath(Vector2f start, Vector2f dest, World world){
+	public static Path findPath(Vector2f start, Vector2f dest, World world, float unitRadius){
 		Stack<Vector2f> path = new Stack<Vector2f>();
 		
 		Vector2f startTrunc = new Vector2f((float)Math.floor(start.x), (float)Math.floor(start.y));
@@ -78,15 +83,66 @@ public class PathFinderUtil {
 			System.out.println("Pathfinder found destination via " + pathStr);
 		}
 
+		path.push(start);
 		
-		return path;
+		//Only build the final path object here so that the mesh is not recalculated so often
+		Stack<Vector2f> smoothedPath = smoothPath(path, world, unitRadius);
+		return new Path(smoothedPath);
 	}
 	
-	public static Stack<Vector2f> findPath(Vector3f start, Vector3f dest, World world){
+	public static Path findPath(Vector3f start, Vector3f dest, World world, float unitRadius){
 		return findPath(
 				new Vector2f(start.x, start.y),
 				new Vector2f(dest.x, dest.y),
-				world);
+				world, unitRadius);
+	}
+	
+	private static Stack<Vector2f> smoothPath(Stack<Vector2f> path, World world, float unitRadius){
+		
+		/**
+		 * The goal of path smoothing is to cut out intermediate steps where a direct connection between two points is possible.
+		 * 
+		 */
+		
+		//If path has only positions, no smoothing can be done
+		if(path.size()==2) {
+			return path;
+		}
+		Stack<Vector2f> smoothedPath = new Stack<Vector2f>();
+		
+		Vector2f current = path.pop();
+		smoothedPath.push(current);
+		//The immediately following position should always be reachable.
+		Vector2f next = path.pop();
+		
+		
+		while(!path.empty()) {
+			
+			//Iterate through positions along path until a position is found that is not reachable
+			while(!path.empty() && !pathYieldsCollision(current, path.peek(), unitRadius, world)) {
+				//If there was no collision with path.peek(), save this as next position -> move "next forward until it is the
+				//last directly reachable position
+				next = path.pop();
+			}
+			//Next contains the last position that was directly reachable from current -> push onto stack
+			smoothedPath.push(next);
+			current = next;
+			//We either got here because there was a collision with the position at top of the stack, or because the stack is empty.
+			//3 cases here:
+			// a) - 0 positions left in path -> smoothing is done, outer loop will be exited
+			// b) - 1 position left in path -> cannot smooth any further, add last position to smoothed path and done
+			// c) - >1 position left in path -> potential for further smoothing, return to outer loop
+			// Treat case b special
+			if (path.size()==1) {
+				smoothedPath.push(path.pop());	//case 2: 1 position left
+				Collections.reverse(smoothedPath);		//Positions were pushed in reverse direction, reverse again
+				return smoothedPath;
+			}
+			//case a & c are covered by normal loop evaluation
+
+		}
+		Collections.reverse(smoothedPath); 		//Positions were pushed in reverse direction, reverse again
+		return smoothedPath;
 	}
 	
 	private static ArrayList<Node> getNeighbors(Node node, Vector2f dest, World world) {
@@ -120,6 +176,43 @@ public class PathFinderUtil {
 	private static float calcHeuristics(Vector2f start, Vector2f dest) {
 		//The heuristic is the estimated moveCost from start to dest. Using the distance here.
 		return Math.abs(dest.distance(start));
+	}
+	
+	private static boolean pathYieldsCollision(Vector2f start, Vector2f end, float unitRadius, World world) {
+		
+		
+		Vector3f start3 = new Vector3f(start.x, start.y, 0f);
+		DummyUnit path = new DummyUnit(start3, createPathBounds(start, end, unitRadius));
+		
+		for(GameItem i: world.getTiles(start3)) {
+			if (i.checkCollision(path)){
+				return true;
+			}
+		}
+		return false;
+		
+	}
+	
+	private static PolygonalBounds createPathBounds(Vector2f start, Vector2f end, float unitRadius) {
+		/**
+		 * To check whether a path is available from start to end, create rectangular bounds that cover that path and check
+		 * against environment. This rectangular bounding box has the length of the path and the width of the unit and is oriented
+		 * along the path.
+		 */
+		Vector3f dir = new Vector3f(end.x-start.x, end.y-start.y,0);
+		Vector3f n = new Vector3f(-1*dir.y, dir.x,0);
+		n = n.normalize();
+		Vector3f p1 = (new Vector3f(n)).mul(unitRadius);
+		Vector3f p2 = (new Vector3f(n)).mul(-1*unitRadius);
+		Vector3f p3 = (new Vector3f(p1)).add(dir);
+		Vector3f p4 = (new Vector3f(p2)).add(dir);
+		
+		try {
+			return new PolygonalBounds(new Vector3f[] {p1,p2,p3,p4});
+		}catch(Exception e) {
+			return null;
+		}
+		
 	}
 	
 	private static class Node implements Comparable<Node>{

@@ -13,6 +13,7 @@ public final class MovingState extends State{
 	public MovingState(Vector3f pos, Vector2f dir) {
 		super(pos);
 		this.dir = new Vector2f(dir);
+		this.dir.normalize();
 	}
 	
 	//Constructor to convert a State into a MovingState
@@ -29,6 +30,7 @@ public final class MovingState extends State{
 	private MovingState (MovingState state) {
 		this(state.getPosition(), state.getDir());
 	}
+	
 	
 	@Override
 	protected MovingState copy() {
@@ -69,6 +71,7 @@ public final class MovingState extends State{
 		return String.format("%s (direction: %s, %s)", super.toString(), dir.x, dir.y);
 	}
 
+	@Override
 	public Vector2f getDir() {
 		return dir;
 	}

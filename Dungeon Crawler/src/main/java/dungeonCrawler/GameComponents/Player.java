@@ -9,4 +9,13 @@ public class Player extends Unit{
 	public Player(Vector3f position) {
 		super(position);
 	}
+	
+	public Player(Vector3f position, float radius, float height) {
+		super(position, radius, height);
+	}
+	
+	@Override
+	public String toString() {
+		return "Player";
+	}
 }

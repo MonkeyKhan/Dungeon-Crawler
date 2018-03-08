@@ -5,6 +5,7 @@ import org.joml.Vector2i;
 import org.joml.Vector3f;
 
 import dungeonCrawler.GameComponents.*;
+import dungeonCrawler.GameComponents.TerrainType;
 
 public class WorldGenUtil {
 
@@ -34,9 +35,7 @@ public class WorldGenUtil {
 	private static void createTilesFromArray(World w, int[][] arr) {
 		for(int i=0; i<arr.length; i++) {
 			for(int j=0; j<arr[0].length; j++) {
-				if(arr[i][j] < 5) {
-					w.addTile(new Terrain(new Vector3f(i,j,0), arr[i][j]));
-				}
+				w.addTile(new Terrain(new Vector3f(i,j,0), new TerrainType(arr[i][j])));
 			}
 		}
 	}

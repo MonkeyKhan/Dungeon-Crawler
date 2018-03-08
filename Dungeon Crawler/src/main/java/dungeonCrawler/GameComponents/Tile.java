@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.joml.Vector2f;
 import org.joml.Vector3f;
 
+import dungeonCrawler.GameComponents.CollisionBounds.Collidable;
 import dungeonCrawler.UI.Ray;
 import dungeonCrawler.UI.RayIntersection;
 import dungeonCrawler.Utils.MeshUtil;
@@ -12,15 +13,24 @@ public abstract class Tile extends GameItem{
 
 	private ArrayList<Tri> tris;
 	
-	public Tile(Vector3f position, Mesh mesh) {
-		super(position, mesh);
-		try {
-			tris = super.getMesh().makeTris();
-		}catch(Exception e) {
-			System.out.println(e.getMessage());
+	public Tile(Vector3f position, Mesh mesh, Collidable bounds) {
+		super(position, mesh, bounds);
+		
+		//Calculate collision triangles from mesh
+		if(mesh != null) {
+			try {
+				tris = super.getMesh().makeTris();
+			}catch(Exception e) {
+				System.out.println(e.getMessage());
+			}
+		}else {
+			tris = new ArrayList<Tri>(0);
 		}
 	}
 	
+	public Tile(Vector3f position, Mesh mesh) {
+		this(position, mesh, null);
+	}
 	
 	@Override
 	public ArrayList<RayIntersection> processRay(Ray r) {
@@ -136,55 +146,10 @@ public abstract class Tile extends GameItem{
 		return intersections;
 	}
 
+	public String toString() {
+		return String.format("Tile at %s", this.getPosition().toString());
+	}
 
 	public abstract boolean isPassable();
-	
-	
-	
-	/*
-	private final Mesh mesh;
-	private float[] height;
-	private Triangle t1;
-	private Triangle t2;
-	
-	public Tile(Grid grid, Vector2f gridPos) {
-		super(grid, gridPos, true);
-		height = new float[]{0f, 0f, 0f, 0f};
-		t1 = new Triangle(grid, gridPos,
-				new Vector3f(0f, 0f, height[0]),
-				new Vector3f(1f, 0f, height[1]),
-				new Vector3f(1f, 1f, height[2]));
-		t2 = new Triangle(grid, gridPos,
-				new Vector3f(0f, 0f, height[0]),
-				new Vector3f(1f, 1f, height[2]),
-				new Vector3f(0f, 1f, height[3]));
-		t1.addToPosition(0, 0, 0.001f);
-		t2.addToPosition(0, 0, 0.001f);
-		this.mesh = MeshUtil.makeTile((float)Math.random(), (float)Math.random(), (float)Math.random());
-	}
-	public Tile(Grid grid, float x, float y) {
-		super(grid, new Vector2f(x,y), true);
-		height = new float[]{0f, 0f, 0f, 0f};
-		t1 = new Triangle(grid, new Vector2f(x, y),
-				new Vector3f(0f, 0f, height[0]),
-				new Vector3f(1f, 0f, height[1]),
-				new Vector3f(1f, 1f, height[2]));
-		t2 = new Triangle(grid, new Vector2f(x, y),
-				new Vector3f(0f, 0f, height[0]),
-				new Vector3f(1f, 1f, height[1]),
-				new Vector3f(0f, 1f, height[2]));
-		t1.addToPosition(0, 0, 0.001f);
-		t2.addToPosition(0, 0, 0.001f);
-		this.mesh = MeshUtil.makeTile((float)Math.random(), (float)Math.random(), (float)Math.random());
-	}
-	
-	public Triangle[] getTris(){
-		return new Triangle[] {t1, t2};
-	}
-	
-	@Override
-	public Mesh getMesh() {
-		return mesh;
-	}*/
 
 }
