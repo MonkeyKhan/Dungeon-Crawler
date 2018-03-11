@@ -12,6 +12,7 @@ import dungeonCrawler.Commands.Command;
 import dungeonCrawler.Commands.CommandRevision;
 import dungeonCrawler.Commands.NullCommand;
 import dungeonCrawler.GameComponents.CollisionBounds.Collidable;
+import dungeonCrawler.GameComponents.WorldBuilding.Room;
 import dungeonCrawler.States.MovingState;
 import dungeonCrawler.States.State;
 import dungeonCrawler.UI.Ray;
@@ -22,6 +23,9 @@ public abstract class GameItem extends GameComponent {
 	private Mesh mesh;
 	private Command command;
 	private Collidable collisionBounds;
+	
+	//Temp
+	private float rand;
 	
 	public GameItem( Vector3f pos, Mesh mesh) {
 		super(pos);
@@ -48,7 +52,7 @@ public abstract class GameItem extends GameComponent {
 	public ArrayList<Update> update(float interval) {
 		
 		ArrayList<Update> update = new ArrayList<Update>();
-		
+
 		State newState = this.getState().update(interval);
 		newState = command.updateState(newState);
 		
@@ -90,17 +94,27 @@ public abstract class GameItem extends GameComponent {
 		}
 	}
 	
-	public CollisionEvent resolveCollision(GameItem target, State updatedTargetState) {
+	public CollisionEvent resolveCollision(GameItem target, Vector3f targetPos) {
+		/**
+		 * Resolves collision between this and another GameItem target, where the position of target is specified in targetPos
+		 * Specifying the position of target is needed to check collisions resulting from change of state. In that case targetPos
+		 * may carry the new, updated position.
+		 */
+		
 		if(this.collisionBounds == null) {
 			return null;
 		}
-		Vector3f mtv = collisionBounds.resolveCollision(target.getCollisionBounds(), this.getPosition(), updatedTargetState.getPosition());
+		Vector3f mtv = collisionBounds.resolveCollision(target.getCollisionBounds(), this.getPosition(), targetPos);
 		if(mtv == null) {
 			return null;
 		}
 		Vector2f dir = target.getState().getDir();
 		float t = mtv.dot(new Vector3f(dir.x, dir.y, 0))*(-1f)*mtv.length();
 		return new CollisionEvent(mtv, this, target, t);
+	}
+	
+	public CollisionEvent resolveCollision(GameItem target) {
+		return resolveCollision(target, target.getPosition());
 	}
 	
 	protected Mesh getMesh() {
@@ -131,8 +145,9 @@ public abstract class GameItem extends GameComponent {
 		rev.revise(command);
 	}
 	
-	
-	
+	public void setMesh(Mesh mesh){
+		this.mesh = mesh;
+	}
 	
 
 }

@@ -234,7 +234,7 @@ public final class MeshUtil {
         
         return new Mesh(positions, colors, indices, true);
 	}
-	public static Mesh makeBoundingBox(int size, float down, float up) {
+	public static Mesh makeAABB(int size, float down, float up) {
 		float r = 0;
 		float g = 0;
 		float b = 1;
@@ -416,8 +416,32 @@ public final class MeshUtil {
         };
         
         return new Mesh(positions, colors, indices, true);
+	}	
+	public static Mesh makeRectangle(Vector2f size, float r, float g, float b) {
+		float[] positions = new float[]{
+        		0f, 0f, 0f,
+        		size.x, 0f, 0f,
+        		size.x, size.y, 0f,
+        		0f, size.y, 0f
+        };
+        
+        float[] colors = new float[]{
+        		r, g, b,
+        		r, g, b,
+        		r, g, b,
+        		r, g, b
+        };
+        
+        int[] indices = new int[]{
+        		0, 1,
+        		1, 2,
+        		2, 3,
+        		3, 0
+        		
+        };
+        
+        return new Mesh(positions, colors, indices, true);		
 	}
-	
 	public static Mesh makePath(Stack<Vector2f> path) {
 		
 		Stack<Vector2f> p =  (Stack<Vector2f>) path.clone();

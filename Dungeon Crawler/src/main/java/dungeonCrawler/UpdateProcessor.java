@@ -23,8 +23,7 @@ public class UpdateProcessor {
 	}
 	
 	public void process(Update u) {
-		
-		
+
 		State updatedState = u.getNewState();
 		CollisionEvent collision = resolveCollision(u.getOwner(), updatedState);
 		
@@ -36,8 +35,8 @@ public class UpdateProcessor {
 			u.getOwner().acceptRevision(collision);
 			//u.getOwner().forcePosition(resolvedPos);
 		}
+		
 		u.getOwner().setState(updatedState);
-		//Just pass the new State to its owner for now, in the future this will see a lot more checking
 		if(Debug.p) {
 			//System.out.println(String.format("%s: Passing new %s to %s", this.toString(), u.getNewState(), u.getOwner()));
 		}
@@ -62,7 +61,7 @@ public class UpdateProcessor {
 		
 		//collect all CollisionEvents from all colliding gameItems
 		for(GameItem i: world.getTiles(pos)) {
-			CollisionEvent c = i.resolveCollision(item, updatedState);
+			CollisionEvent c = i.resolveCollision(item, updatedState.getPosition());
 			if(c!=null) {
 				collisions.add(c);
 			}

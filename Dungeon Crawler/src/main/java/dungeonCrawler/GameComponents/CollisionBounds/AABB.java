@@ -8,26 +8,35 @@ import org.joml.Vector3f;
 import dungeonCrawler.GameComponents.GameItem;
 import dungeonCrawler.UI.Ray;
 import dungeonCrawler.UI.RayIntersection;
+import dungeonCrawler.Utils.CollisionUtil;
 import dungeonCrawler.Utils.MeshUtil;
 
-public class AABB extends GameItem { //implements Collidable{
+public class AABB extends GameItem implements Collidable{
 	
 	private final Vector3f pMin;
 	private final Vector3f pMax;
+	private Vector3f size;
 	
 	public AABB(Vector3f pos, int size, float lowest, float highest) {	//Explicit constructor for when points are already known
-		super(pos, MeshUtil.makeBoundingBox(size, lowest, highest));
-		this.pMin = new Vector3f(pos.x, pos.y, lowest);
-		this.pMax = new Vector3f(pos.x+size, pos.y+size, highest);
+		super(pos, MeshUtil.makeAABB(size, lowest, highest));
+		this.pMin = new Vector3f(0, 0, lowest);
+		this.pMax = new Vector3f(size, size, highest);
+	}
+	
+	public AABB(Vector3f pos, Vector3f pMin, Vector3f pMax) {
+		super(pos, null);
+		this.pMin = new Vector3f(pMin);
+		this.pMax = new Vector3f(pMax);
 	}
 	
 	public Vector3f getMin() {
-		return pMin;
+		return new Vector3f(pMin);
 	}
 	
 	public Vector3f getMax() {
-		return pMax;
+		return new Vector3f(pMax);
 	}
+	
 	
 	public ArrayList<RayIntersection> processRay(Ray ray) {
 		//Check if ray and AABB intersect, return a ArrayList containing one RayIntersection if intersection is detected or a ArrayList containing nothing if no intersect is detected
@@ -37,8 +46,8 @@ public class AABB extends GameItem { //implements Collidable{
 		Vector3f o = ray.getOrigin();
 		Vector3f dir = ray.getDir();
 				
-		Vector3f min = this.getMin();
-		Vector3f max = this.getMax();
+		Vector3f min = this.getMin().add(this.getPosition());
+		Vector3f max = this.getMax().add(this.getPosition());
 
 		boolean inside = true; //Check if ray's origin lies in the AABB - shouldn't be possible, keep for now
 		
@@ -162,5 +171,38 @@ public class AABB extends GameItem { //implements Collidable{
 		
 		
 	}
+
+	@Override
+	public float getWidth() {
+		// TODO Auto-generated method stub
+		return 0;
+	}
+
+	@Override
+	public Vector3f resolveCollision(Collidable target, Vector3f actorPos, Vector3f targetPos) {
+		return target.visit(this, actorPos, targetPos);
+	}
+
+	@Override
+	public Vector3f visit(Collidable actor, Vector3f actorPos, Vector3f targetPos) {
+		return actor.accept(this, actorPos, targetPos);
+	}
+
+	@Override
+	public Vector3f accept(CylindricBounds target, Vector3f actorPos, Vector3f targetPos) {
+		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
+	}
+
+	@Override
+	public Vector3f accept(PolygonalBounds target, Vector3f actorPos, Vector3f targetPos) {
+		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
+	}
+	
+	@Override
+	public Vector3f accept(AABB target, Vector3f actorPos, Vector3f targetPos) {
+		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
+	}
+	
+	
 	
 }

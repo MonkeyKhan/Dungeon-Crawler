@@ -7,8 +7,11 @@ import org.joml.Vector2f;
 import org.joml.Vector2i;
 import org.joml.Vector3f;
 
+import dungeonCrawler.Update;
 import dungeonCrawler.GameComponents.Structures.GameComponentMatrix;
 import dungeonCrawler.GameComponents.Structures.WorldIterator;
+import dungeonCrawler.GameComponents.WorldBuilding.Boids;
+import dungeonCrawler.GameComponents.WorldBuilding.Room;
 import dungeonCrawler.UI.Ray;
 import dungeonCrawler.UI.RayIntersection;
 
@@ -19,18 +22,23 @@ public class World extends GameItemSystem {
 	private final String name;
 	private final Player player;
 	private final GameComponentMatrix areas;
+	private ArrayList<Room> rooms;
+	
+	//Temporary
+	private Boids b;
 
 	public World(String name, Player player) {
 		super(new Vector2i(0,0));
 		this.name = name;
 		this.player = player;
 		this.areas = new GameComponentMatrix();
+		this.rooms = new ArrayList<Room>();
 
 	}
 	
 	@Override
 	public Iterator<GameComponent> iterator() {
-		return new WorldIterator(areas, player);
+		return new WorldIterator(areas, player, rooms);
 	}
 
 	@Override
@@ -108,4 +116,26 @@ public class World extends GameItemSystem {
 		return this.getAreaOrigin(new Vector2f(pos.x, pos.y));
 	}
 	
+	public void addRoom(Room room) {
+		rooms.add(room);
+	}
+	
+	public void simulateBoids(Boids b) {
+		this.b = b;
+	}
+	
+	//Temporary
+	@Override
+	public ArrayList<Update> update(float interval) {
+		ArrayList<Update> updates = new ArrayList<Update>();
+		Iterator<GameComponent> iterator = iterator();
+		while(iterator.hasNext()){
+			updates.addAll(iterator.next().update(interval));
+		}
+		if (b!= null) {
+			b.update(interval);
+		}
+		return updates;
+
+	}
 }

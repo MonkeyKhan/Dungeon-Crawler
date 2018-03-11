@@ -58,6 +58,10 @@ public class CylindricBounds implements Collidable {
 		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
 	}
 	
+	public Vector3f accept(AABB target, Vector3f actorPos, Vector3f targetPos) {
+		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
+	}
+	
 	public float getWidth() {
 		return this.radius*2;
 	}

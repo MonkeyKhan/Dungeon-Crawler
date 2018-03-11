@@ -48,4 +48,8 @@ public abstract class GameComponent implements Iterable<GameComponent> {
 	
 	public abstract ArrayList<RayIntersection> processRay(Ray r);
 	
+	
+	public void forcePosition(Vector3f pos) {
+		this.state.forcePosition(pos);
+	}
 }

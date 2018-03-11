@@ -10,4 +10,5 @@ public interface Collidable {
 	public Vector3f visit(Collidable actor, Vector3f actorPos, Vector3f targetPos);
 	public Vector3f accept(CylindricBounds bounds, Vector3f actorPos, Vector3f targetPos);
 	public Vector3f accept(PolygonalBounds bounds, Vector3f actorPos, Vector3f targetPos);
+	public Vector3f accept(AABB bounds, Vector3f actorPos, Vector3f targetPos);
 }

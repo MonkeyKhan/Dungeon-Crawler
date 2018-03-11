@@ -102,6 +102,12 @@ public class PolygonalBounds implements Collidable {
 		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
 	}
 	
+	@Override
+	
+	public Vector3f accept(AABB target, Vector3f actorPos, Vector3f targetPos) {
+		return CollisionUtil.resolveCollision(this, target, actorPos, targetPos);
+	}
+	
 	public float getWidth() {
 		//TODO: implement (some projection?..)
 		return 0;

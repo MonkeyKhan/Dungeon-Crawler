@@ -25,6 +25,14 @@ public class MoveCommand implements Command {
 		this.init();
 	}
 	
+	public MoveCommand(Vector2f dest) {
+		/**
+		 * Constructor without path. Only the immediate destination gets passed
+		 */
+		this.path = new Path(new Stack<Vector2f>());
+		this.dest = new Vector2f(dest);
+	}
+	
 	@Override
 	public State updateState(State oldState){
 		

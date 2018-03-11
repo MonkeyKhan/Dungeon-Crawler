@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import org.joml.Vector3f;
 
 import dungeonCrawler.GameComponents.GameItem;
+import dungeonCrawler.GameComponents.CollisionBounds.AABB;
 import dungeonCrawler.GameComponents.CollisionBounds.CylindricBounds;
 import dungeonCrawler.GameComponents.CollisionBounds.PolygonalBounds;
 
@@ -143,7 +144,6 @@ public class CollisionUtil {
 				}
 				return shortestMTV;
 	}
-	
 	public static Vector3f resolveCollision(PolygonalBounds actor, CylindricBounds target, Vector3f actorPos, Vector3f targetPos) {
 		//same as checkCollision(CylindricBounds actor, PolygonalBounds target..), but with invered direction!
 		//-> swap actor and target and call that function
@@ -230,7 +230,97 @@ public class CollisionUtil {
 		}
 		return shortestMTV;
 	}
-	
+	public static Vector3f resolveCollision(CylindricBounds actor, AABB target, Vector3f actorPos, Vector3f targetPos) {
+		//TODO
+		return null;
+	}
+	public static Vector3f resolveCollision(PolygonalBounds actor, AABB target, Vector3f actorPos, Vector3f targetPos) {
+		//TODO
+		return null;
+	}
+	public static Vector3f resolveCollision(AABB actor, CylindricBounds target, Vector3f actorPos, Vector3f targetPos) {
+		//TODO
+		return null;
+	}
+	public static Vector3f resolveCollision(AABB actor, PolygonalBounds target, Vector3f actorPos, Vector3f targetPos) {
+		//TODO
+		return null;
+	}
+	public static Vector3f resolveCollision(AABB actor, AABB target, Vector3f actorPos, Vector3f targetPos) {
+		
+		if(actor == null || target == null) {
+			return null;
+		}
+
+		//Collision detection via Separating Axis Theorem
+		//AABB vs AABB is the almost trivial case where the basis axes x, y and z are the only axes that need checking
+		//The extend of the AABB in x, y and z are also the projections onto these axes.
+		
+		ArrayList<Vector3f> mtvs = new ArrayList<Vector3f>(3);
+		float min, max;
+		
+		//x-axis:
+		
+		min = actorPos.x+actor.getMin().x;
+		max = actorPos.x+actor.getMax().x;
+		AxisProjection actorProjection = new CollisionUtil().new AxisProjection(min, max);
+		
+		min = targetPos.x+target.getMin().x;
+		max = targetPos.x+target.getMax().x;
+		AxisProjection targetProjection = new CollisionUtil().new AxisProjection(min, max);
+		
+		Vector3f MTV = calculateMTV(actorProjection, targetProjection, new Vector3f(1f,0f,0f));
+		if(MTV == null) {
+			return null;
+		}
+		mtvs.add(MTV);
+		
+		//y-axis:
+		
+		min = actorPos.y+actor.getMin().y;
+		max = actorPos.y+actor.getMax().y;
+		actorProjection = new CollisionUtil().new AxisProjection(min, max);
+		
+		min = targetPos.y+target.getMin().y;
+		max = targetPos.y+target.getMax().y;
+		targetProjection = new CollisionUtil().new AxisProjection(min, max);
+		
+		MTV = calculateMTV(actorProjection, targetProjection, new Vector3f(0f,1f,0f));
+		if(MTV == null) {
+			return null;
+		}
+		mtvs.add(MTV);
+		
+		//z-axis:
+		//The z-axis only needs to be checked if both actor and target have a z-extend -> No z-extend is treated as 2D collision
+		if((actor.getMin().z < 0 || actor.getMax().z > 0) && (target.getMin().z < 0 || target.getMax().z > 0)) {
+			min = actorPos.z+actor.getMin().z;
+			max = actorPos.z+actor.getMax().z;
+			actorProjection = new CollisionUtil().new AxisProjection(min, max);
+			
+			min = targetPos.z+target.getMin().z;
+			max = targetPos.z+target.getMax().z;
+			targetProjection = new CollisionUtil().new AxisProjection(min, max);
+			
+			MTV = calculateMTV(actorProjection, targetProjection, new Vector3f(0f,1f,0f));
+			if(MTV == null) {
+				return null;
+			}
+			mtvs.add(MTV);
+		}
+		//If this gets to this point, there definitely is a collision (A MTV was found along each axis)
+		//From all MTVs, find the shortest one
+		Vector3f shortestMTV = mtvs.get(0);
+		float shortestLength = shortestMTV.length(); 
+		for(int i=1; i<mtvs.size(); i++) {
+			float length = mtvs.get(i).length();
+			if(length < shortestLength) {
+				shortestLength = length;
+				shortestMTV = mtvs.get(i);
+			}
+		}
+		return shortestMTV;
+	}
 	
 	public static Vector3f calculateMTV(AxisProjection actor, AxisProjection target, Vector3f axis) {
 		
@@ -241,13 +331,13 @@ public class CollisionUtil {
 		
 		if(tmax <= amin | tmin >= amax) {	//No overlap
 			return null;
-		}else if(tmin < amax && tmax > amax) {				//Overlapping to positive side
+		}else if(tmin <= amax && tmax >= amax) {			//Overlapping to positive side
 			return (new Vector3f(axis)).mul(amax-tmin);		//axis is the normalized vector, multiply by pos. overlap to get MTV
-		}else if(tmax > amin && tmin < amin) { 				//Overlapping to negative side
+		}else if(tmax >= amin && tmin <= amin) { 				//Overlapping to negative side
 			return (new Vector3f(axis)).mul(amin-tmax); 	//multiply by negative overlap
 		
-		}else if((tmin > amin && tmax < amax) ||			//target contained
-				(tmin<amin && tmax > amax))	{ 				//actor contained
+		}else if((tmin >= amin && tmax <= amax) ||			//target contained
+				(tmin<=amin && tmax >= amax))	{ 				//actor contained
 			
 			if( (tmax-amin)<(amax-tmin)) {					//closer to negative side
 				return (new Vector3f(axis)).mul(amin-tmax);	
@@ -255,10 +345,11 @@ public class CollisionUtil {
 				return(new Vector3f(axis)).mul(amax-tmin);
 			}
 		}else {
-			System.out.println("Collision resolution MTV calculation went wrong, this case is unhandled!!");
+			System.out.println(String.format("tmin: %s, tmax: %s, amin: %s, amax: %s", tmin, tmax, amin, amax ));
 			return null;
 		}
 	}
+
 	
 	public class AxisProjection{
 		
